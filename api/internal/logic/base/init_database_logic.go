@@ -34,6 +34,10 @@ func NewInitDatabaseLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Init
 }
 
 func (l *InitDatabaseLogic) InitDatabase() (resp *types.BaseMsgResp, err error) {
+	if !l.svcCtx.Config.ProjectConf.AllowInit {
+		return nil, errorx.NewCodeInvalidArgumentError(i18n.PermissionDeny)
+	}
+
 	result, err := l.svcCtx.CoreRpc.InitDatabase(l.ctx, &core.Empty{})
 	if err != nil && !errors.Is(err, status.Error(codes.DeadlineExceeded, "context deadline exceeded")) {
 		return nil, err
@@ -66,6 +70,12 @@ func (l *InitDatabaseLogic) InitDatabase() (resp *types.BaseMsgResp, err error) 
 	if err != nil {
 		logx.Errorw("failed to load Casbin Policy", logx.Field("detail", err))
 		return nil, errorx.NewCodeInternalError(i18n.DatabaseError)
+	}
+
+	// load role ban data
+	err = l.svcCtx.LoadBanRoleData()
+	if err != nil {
+		return nil, err
 	}
 
 	return &types.BaseMsgResp{Msg: l.svcCtx.Trans.Trans(l.ctx, result.Msg)}, nil
