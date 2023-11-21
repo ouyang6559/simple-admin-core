@@ -255,7 +255,8 @@
         "articleManagement": "Article",
         "articleCategoryManagement": "Category",
 		"articleTagManagement": "Tag",
-		"articleCommentManagement": "Article Comment"
+		"articleCommentManagement": "Article Comment",
+		"articleModify": "Modify Article"
 	},
 	"login": {
 		"loginSuccessTitle": "Login successful",
